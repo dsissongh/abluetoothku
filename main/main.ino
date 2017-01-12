@@ -1,68 +1,40 @@
 /*
-  Initial pass for blue tooth module
+  Initial pass for blue tooth module 
+  Arduino UNO R3
+  Kedsum Bluetooth module
 */
 
+int state = 0;
+int flag = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
-
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
+  Serial.begin(9600);
 }
 
 // the loop function runs over and over again forever
 void loop() {
+if(Serial.available() > 0){
+   state = Serial.read();
+   flag=0;
+ }
 
- // state machine
- idle: 
-   readRadio();
-   if(radioStrength<median+THRESHOLD) goto idle;
-
-   // detect short pulse approx 5x100us
-   count = 0;
-   while(radioStrength>=median+THRESHOLD){
-     readRadio();
-     count++;
+ if (state == '0') {
+   digitalWrite(LED_BUILTIN, LOW);
+   if(flag == 0){
+     Serial.println("LED: off");
+     flag = 1;
    }
-   if(count<=4 || count>=6) goto reset;
-   writeRGB(0,0,300);
+ }
 
-   // detect period between pulses approx 37x100us
-   count = 0;
-   while(radioStrength<median+THRESHOLD){
-     readRadio();
-     count++;
-   }
-   if(count<36 || count>38) goto reset;  
-   
-   // detect short pulse approx 5x100us
-   count = 0;
-   while(radioStrength>=median+THRESHOLD){
-     readRadio();
-     count++;
-   }
-   if(count<=4 || count>=6) goto reset;
-
-   // detect period between pulses approx 37x100us
-   count = 0;
-   while(radioStrength<median+THRESHOLD){
-     readRadio();
-     count++;
-   }
-   if(count<36 || count>38) goto reset;  
-   
-   // detect short pulse approx 5x100us
-   count = 0;
-   while(radioStrength>=median+THRESHOLD){
-     readRadio();
-     count++;
-   }
-   if(count<=4 || count>=6) goto reset;
-
-   // cell phone detected !!!!!    
-   // blink the RGB led
-   writeRGB(300,0,0);
-   delay(500);
-   writeRGB(0, 300,0);
-   delay(500);
-
+ else if (state == '1') {
+ digitalWrite(LED_BUILTIN, HIGH);
+ if(flag == 0){
+ Serial.println("LED: on");
+ flag = 1;
+ }
+ }
 }
